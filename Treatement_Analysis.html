@@ -79,7 +79,7 @@
       <div class="logo-icon">A</div>
       Aura Minds: Treatment Analysis & Monitoring
     </div>
-    <div class="patient-info">Patient Assessment Module</div>
+    <div class="patient-info">Patient ID: SCZ-2024-001 | Last Assessment: Today</div>
   </div>
 
   <div class="container">
@@ -151,39 +151,39 @@
         <div style="margin-bottom:1rem;">
           <label style="display:block;margin-bottom:.5rem;font-weight:500;">Blunted Affect:</label>
           <div class="button-group">
-            <button class="test-button" onclick="rateSymptom('blunted', this, 1)">1</button>
-            <button class="test-button" onclick="rateSymptom('blunted', this, 2)">2</button>
-            <button class="test-button" onclick="rateSymptom('blunted', this, 3)">3</button>
-            <button class="test-button" onclick="rateSymptom('blunted', this, 4)">4</button>
-            <button class="test-button" onclick="rateSymptom('blunted', this, 5)">5</button>
-            <button class="test-button" onclick="rateSymptom('blunted', this, 6)">6</button>
-            <button class="test-button" onclick="rateSymptom('blunted', this, 7)">7</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 1)">1</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 2)">2</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 3)">3</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 4)">4</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 5)">5</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 6)">6</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 7)">7</button>
           </div>
         </div>
 
         <div style="margin-bottom:1rem;">
           <label style="display:block;margin-bottom:.5rem;font-weight:500;">Social Withdrawal:</label>
           <div class="button-group">
-            <button class="test-button" onclick="rateSymptom('withdrawal', this, 1)">1</button>
-            <button class="test-button" onclick="rateSymptom('withdrawal', this, 2)">2</button>
-            <button class="test-button" onclick="rateSymptom('withdrawal', this, 3)">3</button>
-            <button class="test-button" onclick="rateSymptom('withdrawal', this, 4)">4</button>
-            <button class="test-button" onclick="rateSymptom('withdrawal', this, 5)">5</button>
-            <button class="test-button" onclick="rateSymptom('withdrawal', this, 6)">6</button>
-            <button class="test-button" onclick="rateSymptom('withdrawal', this, 7)">7</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 1)">1</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 2)">2</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 3)">3</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 4)">4</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 5)">5</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 6)">6</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 7)">7</button>
           </div>
         </div>
 
         <div style="margin-bottom:1rem;">
           <label style="display:block;margin-bottom:.5rem;font-weight:500;">Avolition:</label>
           <div class="button-group">
-            <button class="test-button" onclick="rateSymptom('avolition', this, 1)">1</button>
-            <button class="test-button" onclick="rateSymptom('avolition', this, 2)">2</button>
-            <button class="test-button" onclick="rateSymptom('avolition', this, 3)">3</button>
-            <button class="test-button" onclick="rateSymptom('avolition', this, 4)">4</button>
-            <button class="test-button" onclick="rateSymptom('avolition', this, 5)">5</button>
-            <button class="test-button" onclick="rateSymptom('avolition', this, 6)">6</button>
-            <button class="test-button" onclick="rateSymptom('avolition', this, 7)">7</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 1)">1</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 2)">2</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 3)">3</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 4)">4</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 5)">5</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 6)">6</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 7)">7</button>
           </div>
         </div>
 
@@ -421,6 +421,15 @@
       btn.classList.add('active');
       
       assessmentData.symptoms.positive[symptom] = rating;
+    }
+
+    function rateNegativeSymptom(symptom, btn, rating) {
+      // Clear other buttons in the same group
+      const buttons = btn.parentNode.querySelectorAll('.test-button');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      assessmentData.symptoms.negative[symptom] = rating;
     }
 
     function calculatePositiveSymptoms() {
