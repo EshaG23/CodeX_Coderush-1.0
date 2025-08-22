@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AuraMind: Cognitive Assessment</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f8fafc; color:#334155; }
+
+    .header{ background:white; padding:1rem 2rem; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; }
+    .logo{ display:flex; align-items:center; gap:.5rem; font-size:1.25rem; font-weight:600; color:#2563eb; }
+    .logo-icon{ width:32px; height:32px; background:#2563eb; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; }
+    .patient-info{ color:#64748b; font-size:.875rem; }
+
+    .container{ max-width:1200px; margin:0 auto; padding:2rem; }
+    .test-header{ background:white; padding:2rem; border-radius:12px; margin-bottom:2rem; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+    .test-title{ font-size:1.875rem; font-weight:700; color:#1e293b; margin-bottom:.5rem; }
+    .test-subtitle{ color:#64748b; font-size:1rem; }
+
+    .test-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(350px,1fr)); gap:1.5rem; }
+    .test-card{ background:white; border-radius:12px; padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,.1); border:1px solid #e2e8f0; transition:.2s; }
+    .test-card:hover{ box-shadow:0 4px 12px rgba(0,0,0,.1); border-color:#2563eb; }
+    .test-card-header{ display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; }
+    .test-icon{ width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; }
+    .test-name{ font-size:1.125rem; font-weight:600; color:#1e293b; }
+
+    .test-prompt{ background:#f1f5f9; padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:.875rem; color:#475569; border-left:4px solid #2563eb; }
+
+    .test-input{ width:100%; padding:.75rem; border:2px solid #e2e8f0; border-radius:8px; font-size:1rem; transition: border-color .2s; margin-bottom:1rem; }
+    .test-input:focus{ outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .test-textarea{ min-height:100px; resize:vertical; font-family:inherit; }
+
+    .button-group{ display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .test-button{ padding:.75rem 1.5rem; border:2px solid #e2e8f0; background:white; border-radius:8px; cursor:pointer; transition:.2s; font-size:.875rem; font-weight:500; }
+    .test-button:hover{ border-color:#2563eb; background:#f8fafc; }
+    .test-button.active{ background:#2563eb; color:white; border-color:#2563eb; }
+
+    .color-button{ width:60px; height:40px; border:2px solid #e2e8f0; border-radius:8px; cursor:pointer; transition:.2s; }
+    .color-button.red{ background:#ef4444; }
+    .color-button.blue{ background:#3b82f6; }
+    .color-button.green{ background:#10b981; }
+    .color-button.yellow{ background:#f59e0b; }
+    .color-button:hover{ transform:scale(1.05); box-shadow:0 2px 8px rgba(0,0,0,.2); }
+
+    .timer{ background:#fef3c7; color:#92400e; padding:.5rem 1rem; border-radius:6px; font-weight:600; text-align:center; margin-bottom:1rem; }
+    .word-list{ background:#f1f5f9; padding:1rem; border-radius:8px; margin-bottom:1rem; text-align:center; font-size:1.125rem; font-weight:500; color:#1e293b; }
+
+    .start-button{ background:#2563eb; color:white; border:none; padding:.75rem 2rem; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; transition:background .2s; width:100%; }
+    .start-button:hover{ background:#1d4ed8; }
+    .start-button:disabled{ background:#94a3b8; cursor:not-allowed; }
+
+    .canvas-container{ display:flex; justify-content:center; margin-bottom:1rem; }
+    .test-canvas{ border:2px solid #e2e8f0; border-radius:8px; background:white; }
+
+    /* UPDATED: smaller, responsive emotion grid & buttons */
+    .emoji-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(100px, 1fr));
+      gap:.5rem;
+    }
+    .emoji-button{
+      min-width:0;
+      padding:.5rem .6rem;
+      border:2px solid #e2e8f0;
+      background:white;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:1.05rem;
+      line-height:1.1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      word-break:break-word;
+    }
+    @media (max-width:480px){
+      .emoji-button{ font-size:.95rem; padding:.45rem .5rem; }
+    }
+
+    .stroop-word{ font-size:2rem; font-weight:bold; text-align:center; padding:2rem; margin-bottom:1rem; background:white; border:2px solid #e2e8f0; border-radius:8px; }
+
+    .instructions{ background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:.875rem; }
+
+    /* compact, colored score pill */
+    .score-display{
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.5rem .75rem; border-radius:8px; font-weight:600; font-size:.9rem;
+      border:1px solid #e2e8f0; background:#eef2ff; color:#3730a3;
+      margin-top:.75rem;
+    }
+    .score-display.success{ background:#eafaf0; border-color:#bbf7d0; color:#166534; }
+    .score-display.error{ background:#fee2e2; border-color:#fecaca; color:#991b1b; }
+    .score-display.info{ background:#eef2ff; border-color:#c7d2fe; color:#3730a3; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">A</div>
+      AuraMind: Cognitive Assessment
+    </div>
+    <div class="patient-info">Patient Assessment Module</div>
+  </div>
+
+  <div class="container">
+    <div class="test-header">
+      <h1 class="test-title">Cognitive Function Assessment</h1>
+      <p class="test-subtitle">Complete the following tests to evaluate cognitive performance across multiple domains</p>
+    </div>
+
+    <div class="test-grid">
+      <!-- Digit Span Backward -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#ddd6fe;color:#7c3aed;">🔢</div>
+          <div class="test-name">Digit Span (Backward)</div>
+        </div>
+        <div class="test-prompt">Type these numbers backward: 7 2 9 4 6</div>
+        <input type="text" class="test-input" placeholder="Enter numbers backward..." id="digitSpan"/>
+        <button class="start-button" onclick="checkDigitSpan()">Submit Answer</button>
+        <div id="digitSpanScore"></div>
+      </div>
+
+      <!-- 1-Back Letters -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fecaca;color:#dc2626;">📝</div>
+          <div class="test-name">1-Back (Letters)</div>
+        </div>
+        <div class="test-prompt">Is the current letter same as previous? Press Match / No Match.</div>
+        <div class="instructions">30 trials will auto-stream. Watch for matching letters!</div>
+        <div id="letterDisplay" style="text-align:center;font-size:3rem;padding:2rem;background:#f8fafc;border-radius:8px;margin-bottom:1rem;">Ready</div>
+        <div class="button-group">
+          <button class="test-button" onclick="nBackResponse(true)">Match</button>
+          <button class="test-button" onclick="nBackResponse(false)">No Match</button>
+        </div>
+        <button class="start-button" onclick="startNBack()" id="nBackStart">Start Test</button>
+        <div id="nBackScore"></div>
+      </div>
+
+      <!-- Go/No-Go -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#bbf7d0;color:#059669;">🎯</div>
+          <div class="test-name">Go/No-Go</div>
+        </div>
+        <div class="test-prompt">Press SPACE for GREEN circle; do nothing for RED.</div>
+        <div class="instructions">20 trials. React quickly to green, ignore red!</div>
+        <div class="canvas-container"><canvas class="test-canvas" width="200" height="200" id="goNoGoCanvas"></canvas></div>
+        <button class="start-button" onclick="startGoNoGo()" id="goNoGoStart">Start Test</button>
+        <div id="goNoGoScore"></div>
+      </div>
+
+      <!-- Stroop Color-Word -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fed7d7;color:#e53e3e;">🌈</div>
+          <div class="test-name">Stroop Color-Word</div>
+        </div>
+        <div class="test-prompt">Select the INK COLOR of the word (not what it says).</div>
+        <div class="stroop-word" id="stroopWord">Ready</div>
+        <div class="button-group">
+          <button class="color-button red" onclick="stroopResponse('red')"></button>
+          <button class="color-button blue" onclick="stroopResponse('blue')"></button>
+          <button class="color-button green" onclick="stroopResponse('green')"></button>
+          <button class="color-button yellow" onclick="stroopResponse('yellow')"></button>
+        </div>
+        <button class="start-button" onclick="startStroop()" id="stroopStart">Start Test</button>
+        <div id="stroopScore"></div>
+      </div>
+
+      <!-- Similarities -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#e0e7ff;color:#5b21b6;">🤔</div>
+          <div class="test-name">Similarities (Abstraction)</div>
+        </div>
+        <div class="test-prompt">How are a car and a bicycle alike?</div>
+        <textarea class="test-input test-textarea" placeholder="Explain how they are similar..." id="similarities"></textarea>
+        <button class="start-button" onclick="submitSimilarities()">Submit Answer</button>
+        <div id="similaritiesScore"></div>
+      </div>
+
+      <!-- Proverb Meaning -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fef3c7;color:#92400e;">💭</div>
+          <div class="test-name">Proverb Meaning</div>
+        </div>
+        <div class="test-prompt">Explain: "A stitch in time saves nine."</div>
+        <textarea class="test-input test-textarea" placeholder="What does this proverb mean..." id="proverb"></textarea>
+        <button class="start-button" onclick="submitProverb()">Submit Answer</button>
+        <div id="proverbScore"></div>
+      </div>
+
+      <!-- Verbal List Learning -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#d1fae5;color:#065f46;">📚</div>
+          <div class="test-name">Verbal List Learning</div>
+        </div>
+        <div class="test-prompt">Memorize these 12 words (20 seconds) → then type all you remember.</div>
+        <div class="word-list" id="wordList" style="display:none;">
+          Apple, Chair, Ocean, Guitar, Mountain, Clock, Butterfly, Pencil, Thunder, Flower, Bridge, Candle
+        </div>
+        <div class="timer" id="memoryTimer" style="display:none;">Time: 20s</div>
+        <textarea class="test-input test-textarea" placeholder="Type all words you remember..." id="wordRecall" style="display:none;"></textarea>
+        <button class="start-button" onclick="startMemoryTest()" id="memoryStart">Start Memory Test</button>
+        <div id="memoryScore"></div>
+      </div>
+
+      <!-- Sequence/Set-Shifting -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fce7f3;color:#be185d;">🔄</div>
+          <div class="test-name">Sequence / Set-Shifting</div>
+        </div>
+        <div class="test-prompt">What comes next: 1, A, 2, B, 3, ?</div>
+        <div class="button-group" id="sequenceBtns">
+          <button class="test-button" onclick="sequenceResponse(this,'4')">4</button>
+          <button class="test-button" onclick="sequenceResponse(this,'C')">C</button>
+          <button class="test-button" onclick="sequenceResponse(this,'D')">D</button>
+          <button class="test-button" onclick="sequenceResponse(this,'5')">5</button>
+        </div>
+        <div id="sequenceScore"></div>
+      </div>
+
+      <!-- Emotion Labeling -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fef9c3;color:#a16207;">😊</div>
+          <div class="test-name">Emotion Labeling</div>
+        </div>
+        <div class="test-prompt">Select the emotion shown.</div>
+        <div id="emotionDisplay" style="text-align:center;font-size:4rem;padding:1rem;">😀</div>
+        <div class="emoji-grid">
+          <button class="emoji-button" onclick="emotionResponse('happy')">😀 Happy</button>
+          <button class="emoji-button" onclick="emotionResponse('sad')">😢 Sad</button>
+          <button class="emoji-button" onclick="emotionResponse('angry')">😠 Angry</button>
+          <button class="emoji-button" onclick="emotionResponse('fearful')">😨 Fearful</button>
+          <button class="emoji-button" onclick="emotionResponse('surprised')">😮 Surprised</button>
+          <button class="emoji-button" onclick="emotionResponse('neutral')">😐 Neutral</button>
+        </div>
+        <button class="start-button" onclick="startEmotionTest()" id="emotionStart">Start Test</button>
+        <div id="emotionScore"></div>
+      </div>
+
+      <!-- Category Fluency -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#ecfdf5;color:#047857;">🐾</div>
+        <div class="test-name">Category Fluency (60s)</div>
+        </div>
+        <div class="test-prompt">List animals for 60 seconds. Separate with spaces/commas.</div>
+        <div class="timer" id="fluencyTimer" style="display:none;">Time: 60s</div>
+        <textarea class="test-input test-textarea" placeholder="Type animal names..." id="animalList" disabled></textarea>
+        <button class="start-button" onclick="startFluencyTest()" id="fluencyStart">Start Test</button>
+        <div id="fluencyScore"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // helper to render compact, colored score pill
+    function renderScore(targetId, text, status='success'){
+      const el = document.getElementById(targetId);
+      el.innerHTML = `<div class="score-display ${status}">${text}</div>`;
+    }
+
+    // Digit Span
+    function checkDigitSpan(){
+      const input = document.getElementById('digitSpan').value.replace(/\s/g,'');
+      const correct = '64927';
+      const ok = (input === correct);
+      renderScore('digitSpanScore', `Score: ${ok?1:0}/1 ${ok?'✓ Correct!':'✗ Incorrect'}`, ok?'success':'error');
+    }
+
+    // 1-Back (letters)
+    let nBackState = { trial:0, letters:[], responses:[], startTime:0, reactionTimes:[] };
+
+    function startNBack(){
+      nBackState = { trial:0, letters:[], responses:[], startTime:0, reactionTimes:[] };
+      document.getElementById('nBackStart').disabled = true;
+      generateNBackSequence();
+      showNextLetter();
+    }
+
+    function generateNBackSequence(){
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      for (let i=0;i<30;i++){
+        if (i>0 && Math.random() < 0.3) nBackState.letters.push(nBackState.letters[i-1]);
+        else nBackState.letters.push(letters[Math.floor(Math.random()*letters.length)]);
+      }
+    }
+
+    function showNextLetter(){
+      if (nBackState.trial < 30){
+        document.getElementById('letterDisplay').textContent = nBackState.letters[nBackState.trial];
+        nBackState.startTime = Date.now();
+        setTimeout(()=>{
+          if (nBackState.responses.length === nBackState.trial){
+            const actualMatch = nBackState.trial>0 &&
+              nBackState.letters[nBackState.trial] === nBackState.letters[nBackState.trial-1];
+            nBackState.responses.push(false === actualMatch); // no response -> incorrect
+            nBackState.reactionTimes.push(null);
+            nBackState.trial++;
+            showNextLetter();
+          }
+        }, 2000);
+      } else finishNBack();
+    }
+
+    function nBackResponse(isMatch){
+      if (nBackState.trial === 0 || nBackState.responses.length > nBackState.trial) return;
+      const reactionTime = Date.now() - nBackState.startTime;
+      const actualMatch = nBackState.trial>0 &&
+        nBackState.letters[nBackState.trial] === nBackState.letters[nBackState.trial-1];
+      nBackState.responses.push(isMatch === actualMatch);
+      nBackState.reactionTimes.push(reactionTime);
+      nBackState.trial++;
+      setTimeout(showNextLetter, 400);
+    }
+
+    function finishNBack(){
+      const correctN = nBackState.responses.filter(Boolean).length;
+      const accuracy = ((correctN/30)*100).toFixed(1);
+      const rts = nBackState.reactionTimes.filter(v=>v!==null).sort((a,b)=>a-b);
+      const medianRT = rts.length ? rts[Math.floor(rts.length/2)] : 0;
+      document.getElementById('nBackScore').innerHTML =
+        `<div class="score-display info">Accuracy: ${accuracy}% | Median RT: ${medianRT}ms</div>`;
+      document.getElementById('letterDisplay').textContent = 'Complete!';
+    }
+
+    // Go / No-Go
+    let goNoGoState = { trial:0, colors:[], responses:[], errors:{commission:0, omission:0}, reactionTimes:[] };
+
+    function startGoNoGo(){
+      goNoGoState = { trial:0, colors:[], responses:[], errors:{commission:0, omission:0}, reactionTimes:[] };
+      document.getElementById('goNoGoStart').disabled = true;
+      for (let i=0;i<20;i++) goNoGoState.colors.push(Math.random()<0.7 ? 'green' : 'red');
+      document.addEventListener('keydown', handleGoNoGoKey);
+      showNextCircle();
+    }
+
+    function showNextCircle(){
+      if (goNoGoState.trial < 20){
+        const ctx = document.getElementById('goNoGoCanvas').getContext('2d');
+        ctx.clearRect(0,0,200,200);
+        ctx.fillStyle = goNoGoState.colors[goNoGoState.trial];
+        ctx.beginPath(); ctx.arc(100,100,50,0,2*Math.PI); ctx.fill();
+        goNoGoState.startTime = Date.now();
+        setTimeout(()=>{
+          if (goNoGoState.responses.length === goNoGoState.trial){
+            if (goNoGoState.colors[goNoGoState.trial] === 'green') goNoGoState.errors.omission++;
+            goNoGoState.responses.push(false);
+            goNoGoState.trial++;
+            showNextCircle();
+          }
+        }, 1500);
+      } else finishGoNoGo();
+    }
+
+    function handleGoNoGoKey(e){
+      if (e.code === 'Space' && goNoGoState.responses.length === goNoGoState.trial){
+        e.preventDefault();
+        const rt = Date.now() - goNoGoState.startTime;
+        goNoGoState.reactionTimes.push(rt);
+        if (goNoGoState.colors[goNoGoState.trial] === 'red') goNoGoState.errors.commission++;
+        goNoGoState.responses.push(true);
+        goNoGoState.trial++;
+        setTimeout(showNextCircle, 300);
+      }
+    }
+
+    function finishGoNoGo(){
+      document.removeEventListener('keydown', handleGoNoGoKey);
+      const rts = goNoGoState.reactionTimes.sort((a,b)=>a-b);
+      const medianRT = rts.length ? rts[Math.floor(rts.length/2)] : 0;
+      document.getElementById('goNoGoScore').innerHTML =
+        `<div class="score-display info">Commission: ${goNoGoState.errors.commission} | Omission: ${goNoGoState.errors.omission} | Median RT: ${medianRT}ms</div>`;
+      const ctx = document.getElementById('goNoGoCanvas').getContext('2d');
+      ctx.clearRect(0,0,200,200); ctx.fillStyle='#64748b'; ctx.font='16px sans-serif'; ctx.textAlign='center'; ctx.fillText('Complete!',100,100);
+    }
+
+    // Stroop
+    let stroopState = { trial:0, words:[], colors:[], responses:[], reactionTimes:[], startTime:0 };
+
+    function startStroop(){
+      const wordList = ['RED','BLUE','GREEN','YELLOW'];
+      const colorList = ['red','blue','green','yellow'];
+      stroopState = { trial:0, words:[], colors:[], responses:[], reactionTimes:[], startTime:0 };
+      for (let i=0;i<10;i++){
+        const word = wordList[Math.floor(Math.random()*4)];
+        let color; do { color = colorList[Math.floor(Math.random()*4)]; } while (color === word.toLowerCase());
+        stroopState.words.push(word); stroopState.colors.push(color);
+      }
+      document.getElementById('stroopStart').disabled = true;
+      showNextStroopWord();
+    }
+
+    function showNextStroopWord(){
+      if (stroopState.trial < 10){
+        const el = document.getElementById('stroopWord');
+        el.textContent = stroopState.words[stroopState.trial];
+        el.style.color = stroopState.colors[stroopState.trial];
+        stroopState.startTime = Date.now();
+      } else finishStroop();
+    }
+
+    function stroopResponse(selectedColor){
+      if (stroopState.trial >= 10) return;
+      const rt = Date.now() - stroopState.startTime;
+      stroopState.reactionTimes.push(rt);
+      const correct = selectedColor === stroopState.colors[stroopState.trial];
+      stroopState.responses.push(correct);
+      stroopState.trial++;
+      setTimeout(showNextStroopWord, 500);
+    }
+
+    function finishStroop(){
+      const acc = (stroopState.responses.filter(Boolean).length/10*100).toFixed(1);
+      const rts = stroopState.reactionTimes.sort((a,b)=>a-b);
+      const medianRT = rts[Math.floor(rts.length/2)];
+      document.getElementById('stroopScore').innerHTML =
+        `<div class="score-display info">Accuracy: ${acc}% | Median RT: ${medianRT}ms</div>`;
+      document.getElementById('stroopWord').textContent='Complete!';
+      document.getElementById('stroopWord').style.color='#64748b';
+    }
+
+    // Similarities
+    function submitSimilarities(){
+      const answer = document.getElementById('similarities').value.trim().toLowerCase();
+      let score = 0;
+      if (answer.includes('transport') || answer.includes('vehicle')) score = 2;     // abstract
+      else if (answer.includes('move') || answer.includes('travel')) score = 1;     // functional
+      const status = score===0 ? 'error' : 'success';
+      const tag = score===2 ? '(Abstract)' : score===1 ? '(Functional)' : '(Concrete)';
+      renderScore('similaritiesScore', `Score: ${score}/2 ${tag}`, status);
+    }
+
+    // Proverb
+    function submitProverb(){
+      const a = document.getElementById('proverb').value.trim().toLowerCase();
+      const ok = /(prevent|early|fix|before|save|avoid)/.test(a);
+      renderScore('proverbScore', `Score: ${ok?1:0}/1 ${ok?'✓ Correct understanding':'✗ Needs improvement'}`, ok?'success':'error');
+    }
+
+    // Memory (Verbal List Learning)
+    let memoryState = { phase:'ready', timeLeft:20 };
+
+    function startMemoryTest(){
+      document.getElementById('memoryStart').style.display='none';
+      document.getElementById('wordList').style.display='block';
+      document.getElementById('memoryTimer').style.display='block';
+      memoryState.phase='memorize'; memoryState.timeLeft=20;
+      const timer = setInterval(()=>{
+        memoryState.timeLeft--;
+        document.getElementById('memoryTimer').textContent = `Time: ${memoryState.timeLeft}s`;
+        if (memoryState.timeLeft <= 0){ clearInterval(timer); startRecallPhase(); }
+      },1000);
+    }
+
+    function startRecallPhase(){
+      document.getElementById('wordList').style.display='none';
+      document.getElementById('memoryTimer').style.display='none';
+      const area = document.getElementById('wordRecall');
+      area.style.display='block'; area.disabled=false;
+
+      if (!document.getElementById('memorySubmitBtn')){
+        const submitBtn = document.createElement('button');
+        submitBtn.id = 'memorySubmitBtn';
+        submitBtn.className = 'start-button';
+        submitBtn.textContent = 'Submit Recalled Words';
+        submitBtn.onclick = checkMemoryRecall;
+        area.parentNode.appendChild(submitBtn);
+      }
+    }
+
+    function checkMemoryRecall(){
+      const correctWords = ['apple','chair','ocean','guitar','mountain','clock','butterfly','pencil','thunder','flower','bridge','candle'];
+      const recalled = document.getElementById('wordRecall').value.toLowerCase()
+        .split(/[,\s]+/).filter(w=>w.length>0).map(w=>w.trim());
+      const uniq = [...new Set(recalled)];
+      const correctCount = uniq.filter(w=>correctWords.includes(w)).length;
+      const intrusions = uniq.length - correctCount;
+      document.getElementById('memoryScore').innerHTML =
+        `<div class="score-display info">Correct: ${correctCount}/12 | Intrusions: ${intrusions}</div>`;
+    }
+
+    // Sequence / Set-Shifting
+    function sequenceResponse(btn, answer){
+      [...document.getElementById('sequenceBtns').children].forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const ok = (answer === 'C');
+      renderScore('sequenceScore', `Score: ${ok?1:0}/1 ${ok?'✓ Correct! (Pattern: 1,A,2,B,3,C)':'✗ Incorrect'}`, ok?'success':'error');
+    }
+
+    // Emotion Labeling
+    let emotionState = { currentEmotion:'', emotions:['😀','😢','😠','😨','😮','😐'], emotionNames:['happy','sad','angry','fearful','surprised','neutral'], trial:0, correct:0 };
+
+    function startEmotionTest(){
+      emotionState.trial=0; emotionState.correct=0;
+      document.getElementById('emotionStart').disabled = true;
+      showNextEmotion();
+    }
+
+    function showNextEmotion(){
+      if (emotionState.trial < 6){
+        const i = Math.floor(Math.random()*6);
+        emotionState.currentEmotion = emotionState.emotionNames[i];
+        document.getElementById('emotionDisplay').textContent = emotionState.emotions[i];
+      } else finishEmotionTest();
+    }
+
+    function emotionResponse(selectedEmotion){
+      if (emotionState.trial >= 6) return;
+      if (selectedEmotion === emotionState.currentEmotion) emotionState.correct++;
+      emotionState.trial++; setTimeout(showNextEmotion, 1000);
+    }
+
+    function finishEmotionTest(){
+      const acc = (emotionState.correct/6*100).toFixed(1);
+      document.getElementById('emotionScore').innerHTML =
+        `<div class="score-display info">Accuracy: ${acc}% (${emotionState.correct}/6)</div>`;
+      document.getElementById('emotionDisplay').textContent = '✓';
+    }
+
+    // Category Fluency
+    let fluencyState = { timeLeft:60, active:false };
+
+    function startFluencyTest(){
+      document.getElementById('animalList').disabled=false;
+      document.getElementById('fluencyStart').disabled=true;
+      document.getElementById('fluencyTimer').style.display='block';
+      fluencyState.timeLeft=60; fluencyState.active=true;
+      const timer = setInterval(()=>{
+        fluencyState.timeLeft--;
+        document.getElementById('fluencyTimer').textContent = `Time: ${fluencyState.timeLeft}s`;
+        if (fluencyState.timeLeft <= 0){ clearInterval(timer); finishFluencyTest(); }
+      },1000);
+    }
+
+    function finishFluencyTest(){
+      document.getElementById('animalList').disabled=true;
+      const animals = document.getElementById('animalList').value.toLowerCase()
+        .split(/[,\s]+/).filter(w=>w.length>0).map(w=>w.trim());
+      const unique = [...new Set(animals)];
+      const repetitions = animals.length - unique.length;
+      document.getElementById('fluencyScore').innerHTML =
+        `<div class="score-display info">Unique Animals: ${unique.length} | Repetitions: ${repetitions}</div>`;
+      document.getElementById('fluencyTimer').textContent = 'Time: 0s - Complete!';
+    }
+  </script>
+</body>
+</html>

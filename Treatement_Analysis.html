@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aura Minds: Treatment Analysis & Monitoring</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f8fafc; color:#334155; }
+
+    .header{ background:white; padding:1rem 2rem; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; }
+    .logo{ display:flex; align-items:center; gap:.5rem; font-size:1.25rem; font-weight:600; color:#2563eb; }
+    .logo-icon{ width:32px; height:32px; background:#2563eb; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; }
+    .patient-info{ color:#64748b; font-size:.875rem; }
+
+    .container{ max-width:1200px; margin:0 auto; padding:2rem; }
+    .test-header{ background:white; padding:2rem; border-radius:12px; margin-bottom:2rem; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+    .test-title{ font-size:1.875rem; font-weight:700; color:#1e293b; margin-bottom:.5rem; }
+    .test-subtitle{ color:#64748b; font-size:1rem; }
+
+    .test-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(350px,1fr)); gap:1.5rem; }
+    .test-card{ background:white; border-radius:12px; padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,.1); border:1px solid #e2e8f0; transition:.2s; }
+    .test-card:hover{ box-shadow:0 4px 12px rgba(0,0,0,.1); border-color:#2563eb; }
+    .test-card-header{ display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; }
+    .test-icon{ width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; }
+    .test-name{ font-size:1.125rem; font-weight:600; color:#1e293b; }
+
+    .test-prompt{ background:#f1f5f9; padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:.875rem; color:#475569; border-left:4px solid #2563eb; }
+
+    .test-input{ width:100%; padding:.75rem; border:2px solid #e2e8f0; border-radius:8px; font-size:1rem; transition: border-color .2s; margin-bottom:1rem; }
+    .test-input:focus{ outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .test-textarea{ min-height:100px; resize:vertical; font-family:inherit; }
+
+    .button-group{ display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .test-button{ padding:.75rem 1.5rem; border:2px solid #e2e8f0; background:white; border-radius:8px; cursor:pointer; transition:.2s; font-size:.875rem; font-weight:500; }
+    .test-button:hover{ border-color:#2563eb; background:#f8fafc; }
+    .test-button.active{ background:#2563eb; color:white; border-color:#2563eb; }
+
+    .severity-button{ width:60px; height:40px; border:2px solid #e2e8f0; border-radius:8px; cursor:pointer; transition:.2s; font-weight:600; font-size:.75rem; }
+    .severity-button.none{ background:#10b981; color:white; }
+    .severity-button.mild{ background:#f59e0b; color:white; }
+    .severity-button.moderate{ background:#f97316; color:white; }
+    .severity-button.severe{ background:#dc2626; color:white; }
+    .severity-button:hover{ transform:scale(1.05); box-shadow:0 2px 8px rgba(0,0,0,.2); }
+
+    .slider-container{ margin-bottom:1rem; }
+    .slider{ width:100%; height:8px; border-radius:4px; background:#e2e8f0; outline:none; margin-bottom:.5rem; }
+    .slider-labels{ display:flex; justify-content:space-between; font-size:.75rem; color:#64748b; }
+
+    .start-button{ background:#2563eb; color:white; border:none; padding:.75rem 2rem; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; transition:background .2s; width:100%; }
+    .start-button:hover{ background:#1d4ed8; }
+    .start-button:disabled{ background:#94a3b8; cursor:not-allowed; }
+
+    .score-display{
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.5rem .75rem; border-radius:8px; font-weight:600; font-size:.9rem;
+      border:1px solid #e2e8f0; background:#eef2ff; color:#3730a3;
+      margin-top:.75rem;
+    }
+    .score-display.success{ background:#eafaf0; border-color:#bbf7d0; color:#166534; }
+    .score-display.warning{ background:#fef3c7; border-color:#fde68a; color:#92400e; }
+    .score-display.error{ background:#fee2e2; border-color:#fecaca; color:#991b1b; }
+    .score-display.info{ background:#eef2ff; border-color:#c7d2fe; color:#3730a3; }
+
+    .medication-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:.5rem; margin-bottom:1rem; }
+    .med-button{ padding:.5rem; border:2px solid #e2e8f0; background:white; border-radius:6px; cursor:pointer; font-size:.875rem; text-align:center; }
+    .med-button:hover{ border-color:#2563eb; }
+    .med-button.active{ background:#2563eb; color:white; }
+
+    .risk-indicator{ padding:.75rem; border-radius:8px; margin-bottom:1rem; font-weight:600; text-align:center; }
+    .risk-low{ background:#dcfce7; color:#166534; border:1px solid #bbf7d0; }
+    .risk-moderate{ background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+    .risk-high{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">A</div>
+      Aura Minds: Treatment Analysis & Monitoring
+    </div>
+    <div class="patient-info">Patient Assessment Module</div>
+  </div>
+
+  <div class="container">
+    <div class="test-header">
+      <h1 class="test-title">Aura Minds Treatment Analysis</h1>
+      <p class="test-subtitle">Comprehensive assessment of symptoms, treatment response, and functional status</p>
+    </div>
+
+    <div class="test-grid">
+      <!-- Positive Symptoms Assessment -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fee2e2;color:#2563eb;">🧠</div>
+          <div class="test-name">Positive Symptoms (PANSS-P)</div>
+        </div>
+        <div class="test-prompt">Rate severity of positive symptoms over the past week (1=Absent, 7=Extreme)</div>
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Delusions:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateSymptom('delusions', this, 1)">1</button>
+            <button class="test-button" onclick="rateSymptom('delusions', this, 2)">2</button>
+            <button class="test-button" onclick="rateSymptom('delusions', this, 3)">3</button>
+            <button class="test-button" onclick="rateSymptom('delusions', this, 4)">4</button>
+            <button class="test-button" onclick="rateSymptom('delusions', this, 5)">5</button>
+            <button class="test-button" onclick="rateSymptom('delusions', this, 6)">6</button>
+            <button class="test-button" onclick="rateSymptom('delusions', this, 7)">7</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Hallucinations:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateSymptom('hallucinations', this, 1)">1</button>
+            <button class="test-button" onclick="rateSymptom('hallucinations', this, 2)">2</button>
+            <button class="test-button" onclick="rateSymptom('hallucinations', this, 3)">3</button>
+            <button class="test-button" onclick="rateSymptom('hallucinations', this, 4)">4</button>
+            <button class="test-button" onclick="rateSymptom('hallucinations', this, 5)">5</button>
+            <button class="test-button" onclick="rateSymptom('hallucinations', this, 6)">6</button>
+            <button class="test-button" onclick="rateSymptom('hallucinations', this, 7)">7</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Disorganized Thinking:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateSymptom('disorganized', this, 1)">1</button>
+            <button class="test-button" onclick="rateSymptom('disorganized', this, 2)">2</button>
+            <button class="test-button" onclick="rateSymptom('disorganized', this, 3)">3</button>
+            <button class="test-button" onclick="rateSymptom('disorganized', this, 4)">4</button>
+            <button class="test-button" onclick="rateSymptom('disorganized', this, 5)">5</button>
+            <button class="test-button" onclick="rateSymptom('disorganized', this, 6)">6</button>
+            <button class="test-button" onclick="rateSymptom('disorganized', this, 7)">7</button>
+          </div>
+        </div>
+
+        <button class="start-button" onclick="calculatePositiveSymptoms()">Calculate PANSS-P Score</button>
+        <div id="positiveScore"></div>
+      </div>
+
+      <!-- Negative Symptoms Assessment -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#ddd6fe;color:#7c3aed;">😶</div>
+          <div class="test-name">Negative Symptoms (PANSS-N)</div>
+        </div>
+        <div class="test-prompt">Rate severity of negative symptoms over the past week</div>
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Blunted Affect:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 1)">1</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 2)">2</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 3)">3</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 4)">4</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 5)">5</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 6)">6</button>
+            <button class="test-button" onclick="rateNegativeSymptom('blunted', this, 7)">7</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Social Withdrawal:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 1)">1</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 2)">2</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 3)">3</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 4)">4</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 5)">5</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 6)">6</button>
+            <button class="test-button" onclick="rateNegativeSymptom('withdrawal', this, 7)">7</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Avolition:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 1)">1</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 2)">2</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 3)">3</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 4)">4</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 5)">5</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 6)">6</button>
+            <button class="test-button" onclick="rateNegativeSymptom('avolition', this, 7)">7</button>
+          </div>
+        </div>
+
+        <button class="start-button" onclick="calculateNegativeSymptoms()">Calculate PANSS-N Score</button>
+        <div id="negativeScore"></div>
+      </div>
+
+      <!-- Medication Adherence & Side Effects -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fef3c7;color:#92400e;">💊</div>
+          <div class="test-name">Medication Assessment</div>
+        </div>
+        <div class="test-prompt">Current medications and adherence patterns</div>
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Primary Antipsychotic:</label>
+          <div class="medication-grid">
+            <button class="med-button" onclick="selectMedication(this, 'risperidone')">Risperidone</button>
+            <button class="med-button" onclick="selectMedication(this, 'olanzapine')">Olanzapine</button>
+            <button class="med-button" onclick="selectMedication(this, 'quetiapine')">Quetiapine</button>
+            <button class="med-button" onclick="selectMedication(this, 'aripiprazole')">Aripiprazole</button>
+            <button class="med-button" onclick="selectMedication(this, 'haloperidol')">Haloperidol</button>
+            <button class="med-button" onclick="selectMedication(this, 'clozapine')">Clozapine</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Adherence (past 2 weeks):</label>
+          <div class="slider-container">
+            <input type="range" min="0" max="100" value="80" class="slider" id="adherenceSlider" oninput="updateAdherence(this.value)">
+            <div class="slider-labels">
+              <span>0% (Never)</span>
+              <span>50% (Sometimes)</span>
+              <span>100% (Always)</span>
+            </div>
+            <div id="adherenceValue" style="text-align:center;font-weight:600;margin-top:.5rem;">80%</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Side Effects Present:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="toggleSideEffect(this, 'weight-gain')">Weight Gain</button>
+            <button class="test-button" onclick="toggleSideEffect(this, 'sedation')">Sedation</button>
+            <button class="test-button" onclick="toggleSideEffect(this, 'eps')">EPS/Tremor</button>
+            <button class="test-button" onclick="toggleSideEffect(this, 'sexual')">Sexual Dysfunction</button>
+            <button class="test-button" onclick="toggleSideEffect(this, 'metabolic')">Metabolic Issues</button>
+          </div>
+        </div>
+
+        <button class="start-button" onclick="assessMedication()">Generate Medication Report</button>
+        <div id="medicationScore"></div>
+      </div>
+
+      <!-- Cognitive Function Assessment -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#e0e7ff;color:#5b21b6;">🧩</div>
+          <div class="test-name">Cognitive Assessment (MOCA)</div>
+        </div>
+        <div class="test-prompt">Brief cognitive screening for executive function and memory</div>
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Serial 7s: Start at 100, subtract 7 each time (5 steps)</label>
+          <input type="text" class="test-input" placeholder="e.g., 100, 93, 86, 79, 72" id="serial7s"/>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Word Recall: Remember these 5 words</label>
+          <div class="test-prompt" style="text-align:center;font-size:1.1rem;font-weight:600;">FACE - VELVET - CHURCH - DAISY - RED</div>
+          <button class="test-button" onclick="startWordRecall()" id="wordRecallBtn">Start 5-minute delay</button>
+          <textarea class="test-input test-textarea" placeholder="After 5 minutes, type the words you remember..." id="wordRecallInput" style="display:none;"></textarea>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Clock Drawing: Draw a clock showing 10 past 11</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateClockDrawing(this, 'normal')">Normal (4 pts)</button>
+            <button class="test-button" onclick="rateClockDrawing(this, 'mild')">Mild Impairment (2-3 pts)</button>
+            <button class="test-button" onclick="rateClockDrawing(this, 'severe')">Severe Impairment (0-1 pts)</button>
+          </div>
+        </div>
+
+        <button class="start-button" onclick="calculateCognitive()">Calculate Cognitive Score</button>
+        <div id="cognitiveScore"></div>
+      </div>
+
+      <!-- Functional Assessment -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#d1fae5;color:#065f46;">🏠</div>
+          <div class="test-name">Functional Assessment (GAF)</div>
+        </div>
+        <div class="test-prompt">Rate current level of functioning in daily activities</div>
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Activities of Daily Living:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateFunctioning('adl', this, 'independent')">Independent</button>
+            <button class="test-button" onclick="rateFunctioning('adl', this, 'minimal-help')">Minimal Help</button>
+            <button class="test-button" onclick="rateFunctioning('adl', this, 'moderate-help')">Moderate Help</button>
+            <button class="test-button" onclick="rateFunctioning('adl', this, 'dependent')">Dependent</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Social Functioning:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateFunctioning('social', this, 'good')">Good Relationships</button>
+            <button class="test-button" onclick="rateFunctioning('social', this, 'fair')">Some Difficulties</button>
+            <button class="test-button" onclick="rateFunctioning('social', this, 'poor')">Major Difficulties</button>
+            <button class="test-button" onclick="rateFunctioning('social', this, 'isolated')">Socially Isolated</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Work/School Status:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateFunctioning('work', this, 'full-time')">Full-time</button>
+            <button class="test-button" onclick="rateFunctioning('work', this, 'part-time')">Part-time</button>
+            <button class="test-button" onclick="rateFunctioning('work', this, 'supported')">Supported Work</button>
+            <button class="test-button" onclick="rateFunctioning('work', this, 'unable')">Unable to Work</button>
+          </div>
+        </div>
+
+        <button class="start-button" onclick="calculateFunctioning()">Calculate GAF Score</button>
+        <div id="functioningScore"></div>
+      </div>
+
+      <!-- Risk Assessment -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#fee2e2;color:#2563eb;">⚠️</div>
+          <div class="test-name">Risk Assessment</div>
+        </div>
+        <div class="test-prompt">Evaluate current risk factors and safety concerns</div>
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Suicidal Ideation:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateRisk('suicide', this, 'none')">None</button>
+            <button class="test-button" onclick="rateRisk('suicide', this, 'passive')">Passive Thoughts</button>
+            <button class="test-button" onclick="rateRisk('suicide', this, 'active')">Active Ideation</button>
+            <button class="test-button" onclick="rateRisk('suicide', this, 'plan')">With Plan</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Violence Risk:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateRisk('violence', this, 'low')">Low</button>
+            <button class="test-button" onclick="rateRisk('violence', this, 'moderate')">Moderate</button>
+            <button class="test-button" onclick="rateRisk('violence', this, 'high')">High</button>
+            <button class="test-button" onclick="rateRisk('violence', this, 'imminent')">Imminent</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Substance Use:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="rateRisk('substance', this, 'none')">None</button>
+            <button class="test-button" onclick="rateRisk('substance', this, 'occasional')">Occasional</button>
+            <button class="test-button" onclick="rateRisk('substance', this, 'regular')">Regular Use</button>
+            <button class="test-button" onclick="rateRisk('substance', this, 'dependent')">Dependent</button>
+          </div>
+        </div>
+
+        <button class="start-button" onclick="calculateRisk()">Generate Risk Assessment</button>
+        <div id="riskScore"></div>
+      </div>
+
+      <!-- Treatment Response -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-icon" style="background:#ecfdf5;color:#047857;">📈</div>
+          <div class="test-name">Treatment Response</div>
+        </div>
+        <div class="test-prompt">Overall treatment progress and recommendations</div>
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Symptom Improvement (vs. baseline):</label>
+          <div class="slider-container">
+            <input type="range" min="-50" max="100" value="25" class="slider" id="improvementSlider" oninput="updateImprovement(this.value)">
+            <div class="slider-labels">
+              <span>-50% (Worse)</span>
+              <span>0% (No Change)</span>
+              <span>+100% (Much Better)</span>
+            </div>
+            <div id="improvementValue" style="text-align:center;font-weight:600;margin-top:.5rem;">+25%</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Treatment Goals Met:</label>
+          <div class="button-group">
+            <button class="test-button" onclick="toggleGoal(this, 'symptom-reduction')">Symptom Reduction</button>
+            <button class="test-button" onclick="toggleGoal(this, 'functional-improvement')">Functional Improvement</button>
+            <button class="test-button" onclick="toggleGoal(this, 'medication-adherence')">Medication Adherence</button>
+            <button class="test-button" onclick="toggleGoal(this, 'social-engagement')">Social Engagement</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:.5rem;font-weight:500;">Next Steps:</label>
+          <textarea class="test-input test-textarea" placeholder="Treatment plan adjustments, referrals, follow-up schedule..." id="treatmentPlan"></textarea>
+        </div>
+
+        <button class="start-button" onclick="generateTreatmentReport()">Generate Treatment Report</button>
+        <div id="treatmentScore"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let assessmentData = {
+      symptoms: { positive: {}, negative: {} },
+      medication: { drug: '', adherence: 80, sideEffects: [] },
+      cognitive: { serial7s: '', wordRecall: '', clockDrawing: '' },
+      functioning: { adl: '', social: '', work: '' },
+      risk: { suicide: '', violence: '', substance: '' },
+      treatment: { improvement: 25, goals: [], plan: '' }
+    };
+
+    // Helper function to render scores
+    function renderScore(targetId, text, status='success'){
+      const el = document.getElementById(targetId);
+      el.innerHTML = `<div class="score-display ${status}">${text}</div>`;
+    }
+
+    function rateSymptom(symptom, btn, rating) {
+      // Clear other buttons in the same group
+      const buttons = btn.parentNode.querySelectorAll('.test-button');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      assessmentData.symptoms.positive[symptom] = rating;
+    }
+
+    function rateNegativeSymptom(symptom, btn, rating) {
+      // Clear other buttons in the same group
+      const buttons = btn.parentNode.querySelectorAll('.test-button');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      assessmentData.symptoms.negative[symptom] = rating;
+    }
+
+    function calculatePositiveSymptoms() {
+      const { delusions = 0, hallucinations = 0, disorganized = 0 } = assessmentData.symptoms.positive;
+      const total = delusions + hallucinations + disorganized;
+      const severity = total <= 9 ? 'Minimal' : total <= 15 ? 'Mild' : total <= 21 ? 'Moderate' : 'Severe';
+      const status = total <= 9 ? 'success' : total <= 15 ? 'info' : total <= 21 ? 'warning' : 'error';
+      
+      renderScore('positiveScore', `PANSS-P: ${total}/21 (${severity})`, status);
+    }
+
+    function calculateNegativeSymptoms() {
+      const { blunted = 0, withdrawal = 0, avolition = 0 } = assessmentData.symptoms.negative;
+      const total = blunted + withdrawal + avolition;
+      const severity = total <= 9 ? 'Minimal' : total <= 15 ? 'Mild' : total <= 21 ? 'Moderate' : 'Severe';
+      const status = total <= 9 ? 'success' : total <= 15 ? 'info' : total <= 21 ? 'warning' : 'error';
+      
+      renderScore('negativeScore', `PANSS-N: ${total}/21 (${severity})`, status);
+    }
+
+    function selectMedication(btn, drug) {
+      const buttons = btn.parentNode.querySelectorAll('.med-button');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      assessmentData.medication.drug = drug;
+    }
+
+    function updateAdherence(value) {
+      assessmentData.medication.adherence = parseInt(value);
+      document.getElementById('adherenceValue').textContent = value + '%';
+    }
+
+    function toggleSideEffect(btn, effect) {
+      btn.classList.toggle('active');
+      if (btn.classList.contains('active')) {
+        assessmentData.medication.sideEffects.push(effect);
+      } else {
+        assessmentData.medication.sideEffects = assessmentData.medication.sideEffects.filter(e => e !== effect);
+      }
+    }
+
+    function assessMedication() {
+      const { drug, adherence, sideEffects } = assessmentData.medication;
+      const adherenceStatus = adherence >= 80 ? 'Good' : adherence >= 60 ? 'Fair' : 'Poor';
+      const sideEffectCount = sideEffects.length;
+      const status = adherence >= 80 && sideEffectCount <= 1 ? 'success' : 'warning';
+      
+      renderScore('medicationScore', `${drug || 'Not selected'} | Adherence: ${adherence}% (${adherenceStatus}) | Side Effects: ${sideEffectCount}`, status);
+    }
+
+    function startWordRecall() {
+      document.getElementById('wordRecallBtn').disabled = true;
+      document.getElementById('wordRecallBtn').textContent = 'Wait 5 minutes...';
+      
+      setTimeout(() => {
+        document.getElementById('wordRecallInput').style.display = 'block';
+        document.getElementById('wordRecallBtn').textContent = 'Time up! Enter words above';
+      }, 5000); // Shortened to 5 seconds for demo
+    }
+
+    function rateClockDrawing(btn, level) {
+      const buttons = btn.parentNode.querySelectorAll('.test-button');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      assessmentData.cognitive.clockDrawing = level;
+    }
+
+    function calculateCognitive() {
+      const serial7s = document.getElementById('serial7s').value;
+      const wordRecall = document.getElementById('wordRecallInput').value.toLowerCase();
+      const correctWords = ['face', 'velvet', 'church', 'daisy', 'red'];
+      const recalledWords = correctWords.filter(word => wordRecall.includes(word)).length;
+      
+      let clockScore = 0;
+      if (assessmentData.cognitive.clockDrawing === 'normal') clockScore = 4;
+      else if (assessmentData.cognitive.clockDrawing === 'mild') clockScore = 2;
+      else if (assessmentData.cognitive.clockDrawing === 'severe') clockScore = 0;
+      
+      const serialScore = serial7s.includes('93') && serial7s.includes('86') ? 3 : 1;
+      const totalScore = serialScore + recalledWords + clockScore;
+      const status = totalScore >= 8 ? 'success' : totalScore >= 5 ? 'warning' : 'error';
+      
+      renderScore('cognitiveScore', `MOCA: ${totalScore}/12 | Words: ${recalledWords}/5 | Clock: ${clockScore}/4`, status);
+    }
+
+    function rateFunctioning(domain, btn, level) {
+      const buttons = btn.parentNode.querySelectorAll('.test-button');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      assessmentData.functioning[domain] = level;
+    }
+
+    function calculateFunctioning() {
+      const { adl, social, work } = assessmentData.functioning;
+      let gafScore = 50; // baseline
+      
+      // ADL scoring
+      if (adl === 'independent') gafScore += 20;
+      else if (adl === 'minimal-help') gafScore += 10;
+      else if (adl === 'moderate-help') gafScore += 0;
+      else if (adl === 'dependent') gafScore -= 10;
+      
+      // Social scoring
+      if (social === 'good') gafScore += 15;
+      else if (social === 'fair') gafScore += 5;
+      else if (social === 'poor') gafScore -= 5;
+      else if (social === 'isolated') gafScore -= 15;
+      
+      // Work scoring
+      if (work === 'full-time') gafScore += 15;
+      else if (work === 'part-time') gafScore += 10;
+      else if (work === 'supported') gafScore += 5;
+      else if (work === 'unable') gafScore -= 10;
+      
+      gafScore = Math.max(1, Math.min(100, gafScore));
+      const level = gafScore >= 70 ? 'Good' : gafScore >= 50 ? 'Fair' : 'Poor';
+      const status = gafScore >= 70 ? 'success' : gafScore >= 50 ? 'warning' : 'error';
+      
+      renderScore('functioningScore', `GAF: ${gafScore}/100 (${level} Functioning)`, status);
+    }
+
+    function rateRisk(domain, btn, level) {
+      const buttons = btn.parentNode.querySelectorAll('.test-button');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      assessmentData.risk[domain] = level;
+    }
+
+    function calculateRisk() {
+      const { suicide, violence, substance } = assessmentData.risk;
+      let riskLevel = 'Low';
+      let status = 'success';
+      
+      if (suicide === 'plan' || violence === 'imminent') {
+        riskLevel = 'IMMEDIATE INTERVENTION REQUIRED';
+        status = 'error';
+      } else if (suicide === 'active' || violence === 'high' || substance === 'dependent') {
+        riskLevel = 'High';
+        status = 'error';
+      } else if (suicide === 'passive' || violence === 'moderate' || substance === 'regular') {
+        riskLevel = 'Moderate';
+        status = 'warning';
+      }
+      
+      renderScore('riskScore', `Risk Level: ${riskLevel}`, status);
+    }
+
+    function updateImprovement(value) {
+      assessmentData.treatment.improvement = parseInt(value);
+      document.getElementById('improvementValue').textContent = (value >= 0 ? '+' : '') + value + '%';
+    }
+
+    function toggleGoal(btn, goal) {
+      btn.classList.toggle('active');
+      if (btn.classList.contains('active')) {
+        assessmentData.treatment.goals.push(goal);
+      } else {
+        assessmentData.treatment.goals = assessmentData.treatment.goals.filter(g => g !== goal);
+      }
+    }
+
+    function generateTreatmentReport() {
+      const { improvement, goals } = assessmentData.treatment;
+      const plan = document.getElementById('treatmentPlan').value;
+      const goalsText = goals.length > 0 ? `Goals met: ${goals.length}/4` : 'No goals selected';
+      const status = improvement >= 25 && goals.length >= 2 ? 'success' : improvement >= 0 ? 'warning' : 'error';
+      
+      renderScore('treatmentScore', `Improvement: ${improvement >= 0 ? '+' : ''}${improvement}% | ${goalsText}`, status);
+      
+      // Generate comprehensive report
+      if (plan.trim()) {
+        console.log('Treatment Plan:', plan);
+      }
+    }
+  </script>
+</body>
+</html>
+
