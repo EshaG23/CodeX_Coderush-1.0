@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraMind: EEG Analysis Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Patient Cohort</h2>
+                <div class="search-container">
+                    <input type="text" placeholder="Search patients..." class="search-input">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            
+            <div class="patient-list">
+                <div class="patient-item active">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="patient-info">
+                        <h4>Rudra Kathoke</h4>
+                        <p>28, Male</p>
+                    </div>
+                    <div class="status-indicator online"></div>
+                </div>
+                
+                <div class="patient-item">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="patient-info">
+                        <h4>Om Singh</h4>
+                        <p>42, Male</p>
+                    </div>
+                    <div class="status-indicator offline"></div>
+                </div>
+                
+                <div class="patient-item">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="patient-info">
+                        <h4>Samrudhi Madankar</h4>
+                        <p>34, Female</p>
+                    </div>
+                    <div class="status-indicator away"></div>
+                </div>
+                
+                <div class="patient-item">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="patient-info">
+                        <h4>Esha Ghosh</h4>
+                        <p>29, Female</p>
+                    </div>
+                    <div class="status-indicator online"></div>
+                </div>
+                
+                <div class="patient-item">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="patient-info">
+                        <h4>Gunika Bhutani</h4>
+                        <p>26, Female</p>
+                    </div>
+                    <div class="status-indicator online"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-brain"></i>
+                        <h1>AuraMind: EEG Analysis Dashboard</h1>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span>Dr. Arya Sharma</span>
+                        <small>Clinician</small>
+                    </div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Patient Details -->
+            <section class="patient-details">
+                <div class="patient-header">
+                    <h2>Rudra Kathoke</h2>
+                    <div class="patient-meta">
+                        <span>Age: 28</span>
+                        <span>Gender: Male</span>
+                        <span>Last Checkup: 2023-10-15</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-file-alt"></i>
+                        Generate Report
+                    </button>
+                    <button class="btn btn-success">
+                        <i class="fas fa-download"></i>
+                        Export EEG
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Emergency Alert
+                    </button>
+                </div>
+            </section>
+
+            <!-- EEG Visualization -->
+            <section class="eeg-section">
+                <div class="section-header">
+                    <h3>EEG Signal Visualization</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-outline">
+                            <i class="fas fa-upload"></i>
+                            Upload Data
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            Run AI Analysis
+                        </button>
+                    </div>
+                </div>
+                <div class="eeg-visualization">
+                    <div class="eeg-placeholder">
+                        <i class="fas fa-chart-line"></i>
+                        <p>EEG data visualization will appear here</p>
+                        <small>Upload EEG data or run analysis to view signals</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Modules -->
+            <section class="analysis-modules">
+                <h3>Advanced Analysis Modules</h3>
+                <div class="modules-grid">
+                    <div class="module-card">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h4>Cognitive Tests</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-moon"></i>
+                        <h4>Sleep Analysis</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Treatment Predictor</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-heartbeat"></i>
+                        <h4>Stress Monitor</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-dna"></i>
+                        <h4>Genetic Risk</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-users"></i>
+                        <h4>Social Metrics</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-pills"></i>
+                        <h4>Med Tracker</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-sun"></i>
+                        <h4>Circadian Health</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-vr-cardboard"></i>
+                        <h4>VR Therapy</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-heart"></i>
+                        <h4>Nutrition Impact</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-chart-bar"></i>
+                        <h4>Peer Analysis</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>Crisis Alert</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-video"></i>
+                        <h4>Remote Consult</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-flask"></i>
+                        <h4>Research Portal</h4>
+                    </div>
+                    <div class="module-card">
+                        <i class="fas fa-ambulance"></i>
+                        <h4>Emergency Alert</h4>
+                    </div>
+                    <div class="module-card highlighted">
+                        <i class="fas fa-leaf"></i>
+                        <h4>Environment Scan</h4>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
