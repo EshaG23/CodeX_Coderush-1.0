@@ -1,30 +1,27 @@
-<<<<<<< HEAD
 {
-	"name": "auramind",
-	"private": true,
-	"version": "0.1.0",
-	"scripts": {
-		"dev": "next dev -p 3000",
-		"build": "next build",
-		"start": "next start -p 3000"
-	},
-	"dependencies": {
-		"chart.js": "^4.4.0",
-		"lucide-react": "^0.294.0",
-		"next": "14.2.5",
-		"react": "18.2.0",
-		"react-chartjs-2": "^5.2.0",
-		"react-dom": "18.2.0"
-	},
-	"devDependencies": {
-		"@types/node": "24.3.0",
-		"@types/react": "19.1.10",
-		"autoprefixer": "10.4.19",
-		"postcss": "8.4.38",
-		"tailwindcss": "3.4.9",
-		"typescript": "5.4.5"
-	}
+  "name": "auramind",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "lucide-react": "^0.294.0",
+    "next": "14.2.5",
+    "react": "18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "18.2.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "@types/react": "19.1.10",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.9",
+    "typescript": "5.4.5"
+  }
 }
-=======
-{"type": "commonjs"}
->>>>>>> 44f0f2a3e9cda581a1df2e867a906f97a9657027
